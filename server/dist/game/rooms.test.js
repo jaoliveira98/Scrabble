@@ -288,6 +288,6 @@ describe("rooms", () => {
     });
     it("prevents resigning when no opponent", () => {
         const r = createRoom("p1", "Player 1");
-        expect(() => resignGame(r.id, "p1")).toThrow("no_opponent");
+        expect(() => resignGame(r.id, "p1")).toThrow("waiting_for_second_player");
     });
 });

@@ -1,22 +1,22 @@
-import { useApp } from "./store";
-import { useScoreAnimation } from "./hooks";
 import {
   Board,
+  Controls,
+  GameEndModal,
+  PointLegend,
   Rack,
   Scoreboard,
   TileBagStats,
   Timer,
-  PointLegend,
   TurnHistory,
-  Controls,
-  GameEndModal,
 } from "./components/game";
 import {
   BlankTileModal,
+  Paragraph,
   ScoreAnimation,
   Title,
-  Paragraph,
 } from "./components/ui";
+import { useScoreAnimation } from "./hooks";
+import { useApp } from "./store";
 
 export default function App() {
   const blankTileModal = useApp((s) => s.blankTileModal);
@@ -39,11 +39,11 @@ export default function App() {
             <Rack />
           </div>
           <div className="space-y-6">
+            <PointLegend />
+            <TileBagStats />
             <Scoreboard />
             <Timer />
             <TurnHistory />
-            <PointLegend />
-            <TileBagStats />
           </div>
         </div>
 
