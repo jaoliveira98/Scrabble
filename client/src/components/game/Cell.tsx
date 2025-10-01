@@ -1,5 +1,6 @@
 import type { PremiumSquare } from "../../types";
 import { getLetterPoints, getPremiumMultiplier } from "../../utils";
+import { Tile } from "../ui";
 
 interface CellProps {
   letter: string | null;
@@ -7,6 +8,7 @@ interface CellProps {
   onClick?: () => void;
   isStaged?: boolean;
   isAnimating?: boolean;
+  isBlank?: boolean;
 }
 
 export function Cell({
@@ -15,6 +17,7 @@ export function Cell({
   onClick,
   isStaged = false,
   isAnimating = false,
+  isBlank = false,
 }: CellProps) {
   const getPremiumClasses = (premium: PremiumSquare | undefined) => {
     const baseClasses =
@@ -38,6 +41,45 @@ export function Cell({
 
   const multiplier = getPremiumMultiplier(premium);
 
+  // If there's a letter, render it using the Tile component for consistency
+  if (letter) {
+    return (
+      <div
+        className={`
+          ${getPremiumClasses(premium)}
+          ${
+            isStaged ? "ring-4 ring-yellow-400/60 scale-105 shadow-xl z-10" : ""
+          }
+          ${
+            isAnimating
+              ? "animate-pulse scale-110"
+              : "hover:scale-105 hover:shadow-lg"
+          }
+          relative group
+        `}
+        onClick={onClick}
+        title={
+          premium
+            ? `${premium} - ${multiplier}`
+            : `${letter} - ${getLetterPoints(letter)} points`
+        }
+      >
+        <Tile
+          letter={letter}
+          isBlank={isBlank}
+          isAnimating={isAnimating}
+          variant="board"
+          className="w-full h-full"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.();
+          }}
+        />
+      </div>
+    );
+  }
+
+  // For empty cells, show premium square styling
   return (
     <button
       onClick={onClick}
@@ -51,29 +93,9 @@ export function Cell({
         }
         relative group
       `}
-      title={
-        premium
-          ? `${premium} - ${multiplier}`
-          : letter
-          ? `${letter} - ${getLetterPoints(letter)} points`
-          : ""
-      }
+      title={premium ? `${premium} - ${multiplier}` : ""}
     >
-      {letter && (
-        <div className="flex flex-col items-center justify-center">
-          <span
-            className={`${
-              isAnimating ? "animate-bounce" : ""
-            } text-sm sm:text-base font-black drop-shadow-sm`}
-          >
-            {letter}
-          </span>
-          <span className="text-[8px] sm:text-[9px] font-bold leading-none drop-shadow-sm">
-            {getLetterPoints(letter)}
-          </span>
-        </div>
-      )}
-      {!letter && multiplier && (
+      {multiplier && (
         <span className="text-[10px] sm:text-[11px] font-black leading-none drop-shadow-sm">
           {multiplier}
         </span>
