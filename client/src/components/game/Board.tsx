@@ -5,18 +5,18 @@ import { Button, ConfirmationModal, Paragraph } from "../ui";
 import { Cell } from "./Cell";
 
 export function Board() {
-  const room = useApp((s) => s.room);
-  const you = useApp((s) => s.you);
-  const availableRack = useApp((s) => s.availableRack);
-  const selectedIdx = useApp((s) => s.selectedRackIndex);
-  const staged = useApp((s) => s.staged);
-  const addPlacement = useApp((s) => s.addPlacement);
-  const removePlacementAt = useApp((s) => s.removePlacementAt);
-  const submitPlacements = useApp((s) => s.submitPlacements);
-  const openBlankTileModal = useApp((s) => s.openBlankTileModal);
-  const skipTurn = useApp((s) => s.skipTurn);
-  const resignGame = useApp((s) => s.resignGame);
-  const resolveChallenge = useApp((s) => s.resolveChallenge);
+  const room = useApp((state) => state.room);
+  const you = useApp((state) => state.you);
+  const availableRack = useApp((state) => state.availableRack);
+  const selectedIdx = useApp((state) => state.selectedRackIndex);
+  const staged = useApp((state) => state.staged);
+  const addPlacement = useApp((state) => state.addPlacement);
+  const removePlacementAt = useApp((state) => state.removePlacementAt);
+  const submitPlacements = useApp((state) => state.submitPlacements);
+  const openBlankTileModal = useApp((state) => state.openBlankTileModal);
+  const skipTurn = useApp((state) => state.skipTurn);
+  const resignGame = useApp((state) => state.resignGame);
+  const resolveChallenge = useApp((state) => state.resolveChallenge);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [showResignConfirm, setShowResignConfirm] = useState(false);
 
@@ -36,77 +36,91 @@ export function Board() {
     );
   }
 
-  function handleCellClick(r: number, c: number) {
+  function _handleCellClick(rowIndex: number, colIndex: number) {
     if (!you || !room) return;
+
     if (room.currentTurnPlayerId !== you.id) {
-      toast.error("Not your turn");
+      toast.error("Not your turn", { position: "bottom-right" });
       return;
     }
-    const isStaged = staged.find((p) => p.coord.row === r && p.coord.col === c);
-    if (isStaged) {
-      removePlacementAt({ row: r, col: c });
+
+    const coord = { row: rowIndex, col: colIndex };
+    const isStagedTile = staged.some(
+      (p) => p.coord.row === rowIndex && p.coord.col === colIndex
+    );
+
+    if (isStagedTile) {
+      removePlacementAt(coord);
       return;
     }
+
     if (selectedIdx == null) return;
-    const existing = room.board[r][c].letter;
-    if (existing) return;
+    if (room.board[rowIndex][colIndex].letter) return;
+
     const letter = availableRack[selectedIdx];
 
-    // If it's a blank tile, open the modal
     if (letter === "_") {
-      openBlankTileModal({ row: r, col: c });
+      openBlankTileModal(coord);
       return;
     }
 
-    // Otherwise, place the tile directly
-    addPlacement({ letter, coord: { row: r, col: c } });
+    addPlacement({ letter, coord });
+  }
+
+  function _handleCellDrop(
+    event: React.DragEvent<HTMLDivElement>,
+    rowIndex: number,
+    colIndex: number
+  ) {
+    event.preventDefault();
+
+    if (!you) return;
+
+    if (room?.currentTurnPlayerId !== you.id) {
+      toast.error("Not your turn", { position: "bottom-right" });
+      return;
+    }
+
+    if (room?.board[rowIndex][colIndex].letter) return;
+
+    try {
+      const payload = JSON.parse(event.dataTransfer.getData("text/plain"));
+      const letter: string = payload.letter;
+      const coord = { row: rowIndex, col: colIndex };
+
+      if (letter === "_") {
+        openBlankTileModal(coord);
+        return;
+      }
+
+      addPlacement({ letter, coord });
+    } catch (error) {
+      toast.error("Error placing tile", { position: "bottom-right" });
+      console.error(`Error placing tile: ${error}`);
+    }
   }
 
   return (
     <>
       <div className="grid grid-cols-15 gap-1 ">
-        {room.board.flatMap((row, r) =>
-          row.map((cell, c) => {
+        {room.board.flatMap((row, rowIndex) =>
+          row.map((cell, colIndex) => {
             const temp = staged.find(
-              (p) => p.coord.row === r && p.coord.col === c
+              (placedTile) =>
+                placedTile.coord.row === rowIndex &&
+                placedTile.coord.col === colIndex
             );
             return (
               <div
-                key={`${r}-${c}`}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault();
-                  if (!you) return;
-                  if (room.currentTurnPlayerId !== you.id) {
-                    toast.error("Not your turn");
-                    return;
-                  }
-                  const existing = room.board[r][c].letter;
-                  if (existing) return;
-                  try {
-                    const payload = JSON.parse(
-                      e.dataTransfer.getData("text/plain")
-                    );
-                    const letter: string = payload.letter;
-
-                    // If it's a blank tile, open the modal
-                    if (letter === "_") {
-                      openBlankTileModal({ row: r, col: c });
-                      return;
-                    }
-
-                    // Otherwise, place the tile directly
-                    addPlacement({ letter, coord: { row: r, col: c } });
-                  } catch {
-                    // Ignore drag and drop errors
-                  }
-                }}
+                key={`${rowIndex}-${colIndex}`}
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => _handleCellDrop(event, rowIndex, colIndex)}
                 className="board-cell"
               >
                 <Cell
                   letter={temp?.letter ?? cell.letter}
                   premium={cell.premium}
-                  onClick={() => handleCellClick(r, c)}
+                  onClick={() => _handleCellClick(rowIndex, colIndex)}
                   isStaged={!!temp}
                   isAnimating={!!temp}
                 />
@@ -120,50 +134,42 @@ export function Board() {
           {staged.length > 0 && (
             <>
               <Button variant="primary" onClick={submitPlacements}>
-                <span className="flex items-center gap-2">
-                  <span>Submit Move</span>
-                  <span className="text-lg">✓</span>
-                </span>
+                Submit Move ✅
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => useApp.getState().clearPlacements()}
               >
-                <span className="flex items-center gap-2">
-                  <span>Clear</span>
-                  <span className="text-lg">↺</span>
-                </span>
+                Clear 🧹
               </Button>
             </>
           )}
           {/* Accept & Challenge for pending moves */}
-          {room.pendingMove && (
+          {room.pendingMove ? (
             <>
               <Button
                 variant="success"
                 onClick={() => resolveChallenge("accept")}
               >
-                Accept
+                Accept 🤝
               </Button>
               <Button
                 variant="danger"
                 onClick={() => resolveChallenge("challenge")}
               >
-                Challenge
+                Challenge 🔥
               </Button>
             </>
-          )}
-          {/* Skip & Resign for normal turns */}
-          {!room.pendingMove && (
+          ) : (
             <>
               <Button variant="text" onClick={() => setShowResignConfirm(true)}>
-                Resign
+                Resign 💔
               </Button>
               <Button
                 variant="warning"
                 onClick={() => setShowSkipConfirm(true)}
               >
-                Skip Turn
+                Skip Turn 🔄
               </Button>
             </>
           )}

@@ -1,8 +1,7 @@
-import { create } from "zustand";
 import toast from "react-hot-toast";
-import type { ServerMessage, ClientMessage, AppState } from "../types";
-import { computeAvailableRack } from "../utils";
-import { getFriendlyError } from "../utils";
+import { create } from "zustand";
+import type { AppState, ClientMessage, ServerMessage } from "../types";
+import { computeAvailableRack, getFriendlyError } from "../utils";
 
 // Extend Window interface to include WebSocket
 declare global {
@@ -45,7 +44,7 @@ export const useApp = create<AppState>((set, get) => ({
       if (msg.type === "error") {
         const err = msg.error;
         console.warn("server_error", err);
-        toast.error(getFriendlyError(err));
+        toast.error(getFriendlyError(err), { position: "bottom-right" });
         // On server error (e.g., invalid move), restore staged tiles back to rack
         set((s) => ({
           staged: [],
