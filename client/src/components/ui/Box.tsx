@@ -11,8 +11,6 @@ export function Box({
   children,
   ...props
 }: BoxProps) {
-  const baseClasses = "relative overflow-hidden";
-
   const variantClasses = {
     default: "bg-white border border-slate-200 rounded-lg p-4 shadow-lg",
     card: "bg-white border border-slate-200 rounded-xl p-6 shadow-2xl",
@@ -24,7 +22,7 @@ export function Box({
       "bg-white/80 backdrop-blur-xl border border-slate-200 rounded-2xl p-8 shadow-2xl",
   };
 
-  const classes = `${baseClasses} ${variantClasses[variant]} ${className}`;
+  const classes = `${variantClasses[variant]} ${className}`;
 
   return (
     <div className={classes} {...props}>

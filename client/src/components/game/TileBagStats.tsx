@@ -1,8 +1,8 @@
 import { useApp } from "../../store";
-import { Box, Title, StatsItem } from "../ui";
+import { Box, StatsItem, Title } from "../ui";
 
 export function TileBagStats() {
-  const room = useApp((s) => s.room);
+  const room = useApp((state) => state.room);
 
   if (!room?.tileBagStats) return null;
 
@@ -11,9 +11,7 @@ export function TileBagStats() {
 
   return (
     <Box variant="card">
-      <Title level={3} className="text-center">
-        Tile Bag
-      </Title>
+      <Title level={3}>Tile Bag</Title>
       <div className="grid grid-cols-3 gap-4 text-center">
         <StatsItem value={totalRemaining} label="Total" />
         <StatsItem value={vowelsRemaining} label="Vowels" />
