@@ -1,5 +1,5 @@
-import { forwardRef } from "react";
 import type { InputHTMLAttributes } from "react";
+import { forwardRef } from "react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   variant?: "default" | "error";
@@ -14,7 +14,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     const baseClasses =
-      "px-6 py-3 rounded-xl bg-slate-100 text-slate-800 border transition-all duration-200 placeholder-slate-400 backdrop-blur-sm";
+      "px-4 py-2 rounded-xl bg-slate-100 text-slate-800 border transition-all duration-200 placeholder-slate-400 backdrop-blur-sm";
 
     const variantClasses = {
       default:
@@ -26,7 +26,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const classes = `${baseClasses} ${variantClasses[variant]} ${className}`;
 
     return (
-      <div className="space-y-1">
+      <div className="">
         {label && (
           <label className="block text-sm font-medium text-slate-700">
             {label}
