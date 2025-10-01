@@ -14,7 +14,7 @@ export function Scoreboard() {
   return (
     <Box variant="card">
       <Title level={3}>Scoreboard</Title>
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {room.players.map((player) => (
           <div className="bg-slate-100 p-4 rounded-lg border border-slate-200 flex items-center justify-between">
             <div className="text-lg font-mono font-bold text-slate-900">
