@@ -1,5 +1,5 @@
-import { getLetterPoints, getPremiumMultiplier } from "../../utils";
 import type { PremiumSquare } from "../../types";
+import { getLetterPoints, getPremiumMultiplier } from "../../utils";
 
 interface CellProps {
   letter: string | null;

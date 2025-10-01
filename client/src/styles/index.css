@@ -69,13 +69,15 @@ body {
 }
 
 /* Scrabble Tile Styles */
+/* Scrabble Tile Styles */
 .scrabble-tile {
   position: relative;
-  background: linear-gradient(145deg, #f59e0b, #d97706, #b45309);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(145deg, #f5e6d3, #e8d4b8, #d9c3a0);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 3px 6px rgba(0, 0, 0, 0.2),
+    inset 0 2px 0 rgba(255, 255, 255, 0.3), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(0);
+  transition: all 0.2s ease;
 }
-
 .scrabble-tile::before {
   content: "";
   position: absolute;
@@ -85,34 +87,29 @@ body {
   bottom: 0;
   background: linear-gradient(
     145deg,
-    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.15),
     rgba(0, 0, 0, 0.1)
   );
   border-radius: inherit;
   pointer-events: none;
 }
-
 .scrabble-tile:hover {
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 6px 12px rgba(0, 0, 0, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.4), inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  transform: translateY(-4px);
 }
-
 .scrabble-tile:active {
   transform: translateY(0) scale(0.95);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
-
 /* Drag indicator */
 .scrabble-tile[draggable="true"] {
   cursor: grab;
 }
-
 .scrabble-tile[draggable="true"]:active {
   cursor: grabbing;
 }
-
 .scrabble-tile[draggable="true"]:hover::after {
   content: "↕";
   position: absolute;
@@ -130,7 +127,6 @@ body {
   font-weight: bold;
   animation: bounce 1s infinite;
 }
-
 @keyframes bounce {
   0%,
   20%,
@@ -149,16 +145,15 @@ body {
 
 /* Scrabble Letter Holder/Tray */
 .letter-holder {
-  background: linear-gradient(145deg, #8b5cf6, #7c3aed, #6d28d9);
+  background: linear-gradient(145deg, #d4a574, #c89456, #b8813d);
   border-radius: 1rem;
   padding: 1.25rem 1.75rem 1rem 1.75rem;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2), 0 4px 8px rgba(0, 0, 0, 0.1),
     inset 0 2px 4px rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
-  border: 2px solid rgba(139, 92, 246, 0.3);
+  border: 2px solid rgba(212, 165, 116, 0.3);
 }
-
 .letter-holder::before {
   content: "";
   position: absolute;
@@ -174,7 +169,6 @@ body {
   border-radius: inherit;
   pointer-events: none;
 }
-
 .letter-holder::after {
   content: "";
   position: absolute;
