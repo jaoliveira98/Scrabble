@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useApp } from "../../store";
-import { Cell } from "./Cell";
-import { ConfirmationModal, Button, Title, Box, Paragraph } from "../ui";
 import toast from "react-hot-toast";
+import { useApp } from "../../store";
+import { Button, ConfirmationModal, Paragraph } from "../ui";
+import { Cell } from "./Cell";
 
 export function Board() {
   const room = useApp((s) => s.room);
@@ -16,6 +16,7 @@ export function Board() {
   const openBlankTileModal = useApp((s) => s.openBlankTileModal);
   const skipTurn = useApp((s) => s.skipTurn);
   const resignGame = useApp((s) => s.resignGame);
+  const resolveChallenge = useApp((s) => s.resolveChallenge);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
   const [showResignConfirm, setShowResignConfirm] = useState(false);
 
@@ -62,129 +63,138 @@ export function Board() {
   }
 
   return (
-    <Box variant="card-large">
-      <div className="relative z-10">
-        <Title level={2} className="text-center">
-          Game Board
-        </Title>
-        <div className="grid grid-cols-15 gap-1 sm:gap-1.5 md:gap-2 p-2 sm:p-3 md:p-4 bg-slate-50 rounded-xl border border-slate-200 shadow-inner max-w-2xl mx-auto">
-          {room.board.flatMap((row, r) =>
-            row.map((cell, c) => {
-              const temp = staged.find(
-                (p) => p.coord.row === r && p.coord.col === c
-              );
-              return (
-                <div
-                  key={`${r}-${c}`}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    if (!you) return;
-                    if (room.currentTurnPlayerId !== you.id) {
-                      toast.error("Not your turn");
+    <>
+      <div className="grid grid-cols-15 gap-1 ">
+        {room.board.flatMap((row, r) =>
+          row.map((cell, c) => {
+            const temp = staged.find(
+              (p) => p.coord.row === r && p.coord.col === c
+            );
+            return (
+              <div
+                key={`${r}-${c}`}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  if (!you) return;
+                  if (room.currentTurnPlayerId !== you.id) {
+                    toast.error("Not your turn");
+                    return;
+                  }
+                  const existing = room.board[r][c].letter;
+                  if (existing) return;
+                  try {
+                    const payload = JSON.parse(
+                      e.dataTransfer.getData("text/plain")
+                    );
+                    const letter: string = payload.letter;
+
+                    // If it's a blank tile, open the modal
+                    if (letter === "_") {
+                      openBlankTileModal({ row: r, col: c });
                       return;
                     }
-                    const existing = room.board[r][c].letter;
-                    if (existing) return;
-                    try {
-                      const payload = JSON.parse(
-                        e.dataTransfer.getData("text/plain")
-                      );
-                      const letter: string = payload.letter;
 
-                      // If it's a blank tile, open the modal
-                      if (letter === "_") {
-                        openBlankTileModal({ row: r, col: c });
-                        return;
-                      }
-
-                      // Otherwise, place the tile directly
-                      addPlacement({ letter, coord: { row: r, col: c } });
-                    } catch {
-                      // Ignore drag and drop errors
-                    }
-                  }}
-                  className="board-cell"
-                >
-                  <Cell
-                    letter={temp?.letter ?? cell.letter}
-                    premium={cell.premium}
-                    onClick={() => handleCellClick(r, c)}
-                    isStaged={!!temp}
-                    isAnimating={!!temp}
-                  />
-                </div>
-              );
-            })
+                    // Otherwise, place the tile directly
+                    addPlacement({ letter, coord: { row: r, col: c } });
+                  } catch {
+                    // Ignore drag and drop errors
+                  }
+                }}
+                className="board-cell"
+              >
+                <Cell
+                  letter={temp?.letter ?? cell.letter}
+                  premium={cell.premium}
+                  onClick={() => handleCellClick(r, c)}
+                  isStaged={!!temp}
+                  isAnimating={!!temp}
+                />
+              </div>
+            );
+          })
+        )}
+      </div>
+      {you && room.currentTurnPlayerId === you.id && (
+        <div className="flex gap-4 mt-8 justify-end">
+          {staged.length > 0 && (
+            <>
+              <Button variant="primary" onClick={submitPlacements}>
+                <span className="flex items-center gap-2">
+                  <span>Submit Move</span>
+                  <span className="text-lg">✓</span>
+                </span>
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => useApp.getState().clearPlacements()}
+              >
+                <span className="flex items-center gap-2">
+                  <span>Clear</span>
+                  <span className="text-lg">↺</span>
+                </span>
+              </Button>
+            </>
+          )}
+          {/* Accept & Challenge for pending moves */}
+          {room.pendingMove && (
+            <>
+              <Button
+                variant="success"
+                onClick={() => resolveChallenge("accept")}
+              >
+                Accept
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => resolveChallenge("challenge")}
+              >
+                Challenge
+              </Button>
+            </>
+          )}
+          {/* Skip & Resign for normal turns */}
+          {!room.pendingMove && (
+            <>
+              <Button variant="text" onClick={() => setShowResignConfirm(true)}>
+                Resign
+              </Button>
+              <Button
+                variant="warning"
+                onClick={() => setShowSkipConfirm(true)}
+              >
+                Skip Turn
+              </Button>
+            </>
           )}
         </div>
-        {you && room.currentTurnPlayerId === you.id && (
-          <div className="flex gap-4 mt-8 justify-end">
-            {staged.length > 0 && (
-              <>
-                <Button variant="primary" onClick={submitPlacements}>
-                  <span className="flex items-center gap-2">
-                    <span>Submit Move</span>
-                    <span className="text-lg">✓</span>
-                  </span>
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => useApp.getState().clearPlacements()}
-                >
-                  <span className="flex items-center gap-2">
-                    <span>Clear</span>
-                    <span className="text-lg">↺</span>
-                  </span>
-                </Button>
-              </>
-            )}
-            {/* Skip & Resign next to board actions */}
-            {!room.pendingMove && (
-              <>
-                <Button
-                  variant="text"
-                  onClick={() => setShowResignConfirm(true)}
-                >
-                  Resign
-                </Button>
-                <Button
-                  variant="warning"
-                  onClick={() => setShowSkipConfirm(true)}
-                >
-                  Skip Turn
-                </Button>
-              </>
-            )}
-          </div>
-        )}
-        {/* Modals over the board area */}
-        <ConfirmationModal
-          isOpen={showSkipConfirm}
-          title="Skip Turn"
-          message="Are you sure you want to skip your turn? This will pass the turn to your opponent."
-          confirmText="Skip"
-          cancelText="Cancel"
-          onConfirm={() => {
-            skipTurn();
-            setShowSkipConfirm(false);
-          }}
-          onCancel={() => setShowSkipConfirm(false)}
-        />
-        <ConfirmationModal
-          isOpen={showResignConfirm}
-          title="Resign Game"
-          message="Are you sure you want to resign? This will end the game and your opponent will win."
-          confirmText="Resign"
-          cancelText="Cancel"
-          onConfirm={() => {
-            resignGame();
-            setShowResignConfirm(false);
-          }}
-          onCancel={() => setShowResignConfirm(false)}
-          isDestructive={true}
-        />
-      </div>
-    </Box>
+      )}
+      {/* Modals over the board area */}
+      <ConfirmationModal
+        isOpen={showSkipConfirm}
+        title="Skip Turn"
+        message="Are you sure you want to skip your turn? This will pass the turn to your opponent."
+        confirmText="Skip"
+        cancelText="Cancel"
+        onConfirm={() => {
+          skipTurn();
+          setShowSkipConfirm(false);
+        }}
+        onCancel={() => setShowSkipConfirm(false)}
+      />
+      <ConfirmationModal
+        isOpen={showResignConfirm}
+        title="Resign Game"
+        message="Are you sure you want to resign? This will end the game and your opponent will win."
+        confirmText="Resign"
+        cancelText="Cancel"
+        onConfirm={() => {
+          resignGame();
+          setShowResignConfirm(false);
+        }}
+        onCancel={() => setShowResignConfirm(false)}
+        isDestructive={true}
+      />
+    </>
   );
 }

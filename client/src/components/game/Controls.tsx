@@ -3,8 +3,7 @@ import { useApp } from "../../store";
 import { Box, Button, Input, Paragraph } from "../ui";
 
 export function Controls() {
-  const { connect, createRoom, joinRoom, room, you, resolveChallenge } =
-    useApp();
+  const { connect, createRoom, joinRoom, room, you } = useApp();
   const [joinId, setJoinId] = useState("");
   const [joinPlayerName, setJoinPlayerName] = useState("");
   const [playerName, setPlayerName] = useState("");
@@ -115,27 +114,7 @@ export function Controls() {
         </div>
       )}
 
-      {room && you && room.currentTurnPlayerId === you.id && (
-        <div className="flex flex-wrap items-center gap-3">
-          {room.pendingMove && room.currentTurnPlayerId === you.id && (
-            <>
-              <Button
-                variant="success"
-                onClick={() => resolveChallenge("accept")}
-              >
-                Accept
-              </Button>
-              <Button
-                variant="danger"
-                onClick={() => resolveChallenge("challenge")}
-              >
-                Challenge
-              </Button>
-            </>
-          )}
-          {/* Skip/Resign moved to Board actions for better UX */}
-        </div>
-      )}
+      {/* Skip/Resign and Accept/Challenge moved to Board actions for better UX */}
     </Box>
   );
 }
