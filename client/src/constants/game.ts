@@ -30,8 +30,6 @@ export const LETTER_POINTS: Record<string, number> = {
 
 export const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-export const BOARD_SIZE = 15;
-
 export const PREMIUM_MULTIPLIERS = {
   DL: "2L",
   TL: "3L",

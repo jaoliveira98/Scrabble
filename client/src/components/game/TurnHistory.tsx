@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useApp } from "../../store";
 import { formatTimestamp } from "../../utils";
 import { Box, Button, Paragraph, Title } from "../ui";
@@ -15,7 +15,7 @@ export function TurnHistory() {
       <Title level={3}>Turn History</Title>
       <div className="max-h-80 overflow-y-auto flex flex-col gap-3">
         {room.moveHistory.map((move) => (
-          <>
+          <Fragment key={move.id}>
             <div className="bg-slate-100 p-4 rounded-lg border border-slate-200 flex items-center justify-between">
               <Paragraph size="sm">{formatTimestamp(move.timestamp)}</Paragraph>
               <Paragraph size="sm">
@@ -49,7 +49,7 @@ export function TurnHistory() {
                 {move.wordDefinitions[selectedWord]}
               </Paragraph>
             )}
-          </>
+          </Fragment>
         ))}
       </div>
     </Box>

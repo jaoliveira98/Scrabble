@@ -6,7 +6,6 @@ import {
   Rack,
   Scoreboard,
   TileBagStats,
-  Timer,
   TurnHistory,
 } from "./components/game";
 import {
@@ -42,7 +41,6 @@ export default function App() {
             <PointLegend />
             <TileBagStats />
             <Scoreboard />
-            <Timer />
             <TurnHistory />
           </div>
         </div>

@@ -16,7 +16,10 @@ export function Scoreboard() {
       <Title level={3}>Scoreboard</Title>
       <div className="flex flex-col gap-3">
         {room.players.map((player) => (
-          <div className="bg-slate-100 p-4 rounded-lg border border-slate-200 flex items-center justify-between">
+          <div
+            key={player.id}
+            className="bg-slate-100 p-4 rounded-lg border border-slate-200 flex items-center justify-between"
+          >
             <div className="text-lg font-mono font-bold text-slate-900">
               {player.score}
             </div>

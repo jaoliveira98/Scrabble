@@ -3,7 +3,6 @@ export { Rack } from "./Rack";
 export { Cell } from "./Cell";
 export { Scoreboard } from "./Scoreboard";
 export { TileBagStats } from "./TileBagStats";
-export { Timer } from "./Timer";
 export { PointLegend } from "./PointLegend";
 export { TurnHistory } from "./TurnHistory";
 export { GameEndModal } from "./GameEndModal";
